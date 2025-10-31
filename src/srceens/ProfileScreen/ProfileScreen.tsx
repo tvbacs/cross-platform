@@ -1,6 +1,7 @@
 import ButtonForm from '@/src/components/ButtonForm';
 import { Colors } from '@/src/constants/theme';
 import { useAuth } from '@/src/context/AuthContext';
+import { getImageUri } from '@/src/utils/getImageUri';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
@@ -28,7 +29,10 @@ export default function ProfileScreen(){
             <View style={styles.profile_header}>
                  <Text style={styles.title}>Xin chào {user?.username}</Text>
                  <View style={styles.wrapp_avt}>
-                    <Image style = {styles.avt}source={{uri:user?.image}}></Image>
+                     <Image
+                            source={{ uri: getImageUri(user?.image) }} 
+                            style={styles.avt}
+                             />
                  </View>
             </View>
             <View style={styles.info_container}>

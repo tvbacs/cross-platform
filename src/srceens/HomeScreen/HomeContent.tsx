@@ -14,6 +14,18 @@ export default function HomeContent() {
   const [error, setError] = useState<string | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const storedUser = await AsyncStorage.getItem('user');
+      if (storedUser) {
+        setCurrentUser(JSON.parse(storedUser));
+      }
+    };
+    getUser();
+  }, []);
+
 
 const handleEdit = (user: User) => {
   setEditUser(user);
@@ -72,16 +84,20 @@ const handleDelete = async (id: string) => {
     fetchUsers();
   }, []); 
 
-   const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return users;
-
-    const query = searchQuery.toLowerCase();
-    return users.filter(
-      (user) =>
-        user.username?.toLowerCase().includes(query) ||
-        user.email?.toLowerCase().includes(query)
-    );
-  }, [users, searchQuery]);
+  const filteredUsers = useMemo(() => {
+    let result = users.filter(user => user._id !== currentUser?._id);
+    
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (user) =>
+          user.username?.toLowerCase().includes(query) ||
+          user.email?.toLowerCase().includes(query)
+      );
+    }
+    
+    return result;
+  }, [users, searchQuery, currentUser]);
   
 
   if (loading) {
@@ -128,33 +144,45 @@ const handleDelete = async (id: string) => {
             </View>
           <FlatList
             data={filteredUsers}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
-                <View style={styles.userCard}>
-                    <View style={styles.userCard_info}>
-                       <Image
-                            source={{ uri: getImageUri(item.image) }} 
-                            style={styles.avatar}
-                            />
+              <View style={styles.userCard}>
+                <View style={styles.userCard_info}>
+                  <Image
+                    source={{ uri: getImageUri(item.image) }}
+                    style={styles.avatar}
+                  />
 
-                        <View style={styles.item_infor}>
-                            <Text style={{fontFamily:'Poppins-Bold'}}>{item.username}</Text>
-                            <Text style={{fontFamily:'Poppins',fontSize:10}}>{item.email}</Text>
-                        </View>
-                    </View>
-    
-                    <View style={styles.userCard_btns}>
-                        <TouchableOpacity onPress={() => handleEdit(item)}>
-                            <Ionicons name="create-outline" size={20} color="#007AFF"/>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleDelete(item._id)}>
-                            <Ionicons name="close-outline" size={20} color="#FF3B30"/>
-                        </TouchableOpacity>
-                    </View>
+                  <View style={styles.item_infor}>
+                    <Text style={{ fontFamily: 'Poppins-Bold' }}>{item.username}</Text>
+                    <Text style={{ fontFamily: 'Poppins', fontSize: 10 }}>{item.email}</Text>
+                  </View>
                 </View>
-                )}
+
+                <View style={styles.userCard_btns}>
+                  {/* Chỉ hiển thị nút SỬA nếu là admin hoặc chính user đó */}
+                  {(currentUser?.username?.toLowerCase() === 'admin' ||
+                    currentUser?._id === item._id) && (
+                    <TouchableOpacity onPress={() => handleEdit(item)}>
+                      <Ionicons name="create-outline" size={20} color="#007AFF" />
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Nút XÓA chỉ hiển thị nếu là admin và không xóa tài khoản admin */}
+                  {currentUser?.username?.toLowerCase() === 'admin' &&
+                    !(item.username?.toLowerCase() === 'admin' ||
+                      item.email?.toLowerCase().includes('admin')) && (
+                      <TouchableOpacity onPress={() => handleDelete(item._id)}>
+                        <Ionicons name="close-outline" size={20} color="#FF3B30" />
+                      </TouchableOpacity>
+                    )}
+                </View>
+              </View>
+            )}
             contentContainerStyle={styles.list}
           />
+
+
           {showEdit && (
             <Edit
                 isVisible={showEdit}

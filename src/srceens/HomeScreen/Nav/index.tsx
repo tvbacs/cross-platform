@@ -1,6 +1,7 @@
 // Nav.tsx
 import { Colors } from '@/src/constants/theme';
 import { useAuth } from '@/src/context/AuthContext';
+import { getImageUri } from '@/src/utils/getImageUri';
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -33,11 +34,10 @@ export default function Nav({ activeTab, setActiveTab }: NavProps) {
         onPress={() => setActiveTab('profile')}
         style={[styles.btn, activeTab === 'profile' && styles.activeBtn]}
       >
-        {user?.image ? (
-          <Image source={{ uri: user.image }} style={styles.avatar} />
-        ) : (
-          <Image source={images.splash} style={styles.avatar} />
-        )}
+       <Image
+             source={{ uri: getImageUri(user?.image) }} 
+            style={styles.avatar}
+          />
       </TouchableOpacity>
     </View>
   );

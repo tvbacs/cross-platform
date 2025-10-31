@@ -40,11 +40,8 @@ function LoginScreen() {
             const data = await response.json();
             if (response.ok) {
             alert("Đăng nhập thành công!");
-            // Lưu vào AsyncStorage
             await AsyncStorage.setItem('token', data.token);
             await AsyncStorage.setItem('user', JSON.stringify(data.user));
-
-            // Cập nhật Context
             updateAuth(data.user, data.token);
             router.replace('/home');
             } else {

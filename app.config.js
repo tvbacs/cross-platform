@@ -1,4 +1,4 @@
-// app.config.js
+// Cấu hình Expo app.
 export default {
   expo: {
     name: "crossplatformui",

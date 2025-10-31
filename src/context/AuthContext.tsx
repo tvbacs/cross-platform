@@ -30,7 +30,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🔹 Tự động khôi phục dữ liệu đăng nhập từ AsyncStorage
   useEffect(() => {
     const loadAuthData = async () => {
       try {
@@ -53,17 +52,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadAuthData();
   }, []);
 
-  // 🔹 Hàm cập nhật thông tin user/token (gọi khi login hoặc logout)
   const updateAuth = (newUser: User | null, newToken: string | null) => {
     setUser(newUser);
     setToken(newToken);
 
     if (newUser && newToken) {
-      // Lưu lại khi đăng nhập
       AsyncStorage.setItem('token', newToken);
       AsyncStorage.setItem('user', JSON.stringify(newUser));
     } else {
-      // Xóa khi đăng xuất
       AsyncStorage.removeItem('token');
       AsyncStorage.removeItem('user');
     }
